@@ -10,6 +10,7 @@
 // detail/sp_counted_base_gcc_atomic.hpp - g++ 4.7+ __atomic intrinsics
 //
 // Copyright 2007, 2020 Peter Dimov
+// Copyright 2020 Emil Dotchevski
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
@@ -62,6 +63,44 @@ inline boost::uint_least32_t atomic_conditional_increment( boost::uint_least32_t
     }
 }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+inline unshared_add_ref_status atomic_unshared_add( boost::uint_least32_t * pw )
+{
+    // long r = *pw;
+    // if( r == 0 ) return unshared_add_ref_status::object_expired;
+    // if( r >= sp_unshared_count_threshold ) return unshared_add_ref_status::unshared_access_already_acquired;
+    // *pw += sp_unshared_count_threshold;
+    // return unshared_add_ref_status::ok
+
+    boost::uint_least32_t r = __atomic_load_n( pw, __ATOMIC_RELAXED );
+
+    for( ;; )
+    {
+        if( r == 0 )
+        {
+            return unshared_add_ref_status::object_expired;
+        }
+
+        if( r >= sp_unshared_count_threshold )
+        {
+            return unshared_add_ref_status::unshared_access_already_acquired;
+        }
+
+        if( __atomic_compare_exchange_n( pw, &r, r + sp_unshared_count_threshold, true, __ATOMIC_RELAXED, __ATOMIC_RELAXED ) )
+        {
+            return unshared_add_ref_status::ok;
+        }
+    }
+}
+
+inline boost::uint_least32_t atomic_unshared_sub( boost::uint_least32_t * pw )
+{
+    return __atomic_fetch_sub( pw, sp_unshared_count_threshold, __ATOMIC_ACQ_REL );
+}
+
+#endif
+
 inline boost::uint_least32_t atomic_load( boost::uint_least32_t const * pw )
 {
     return __atomic_load_n( pw, __ATOMIC_ACQUIRE );
@@ -82,6 +121,14 @@ public:
     sp_counted_base(): use_count_( 1 ), weak_count_( 1 )
     {
     }
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    explicit sp_counted_base( sp_unshared_count_tag ): use_count_(sp_unshared_count_threshold), weak_count_( 1 )
+    {
+    }
+
+#endif
 
     virtual ~sp_counted_base() // nothrow
     {
@@ -122,6 +169,24 @@ public:
         }
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    unshared_add_ref_status unshared_add_ref()
+    {
+        return atomic_unshared_add( &use_count_ );
+    }
+
+    void unshared_release() // nothrow
+    {
+        if( atomic_unshared_sub( &use_count_ ) == sp_unshared_count_threshold )
+        {
+            dispose();
+            weak_release();
+        }
+    }
+
+#endif
+
     void weak_add_ref() // nothrow
     {
         atomic_increment( &weak_count_ );
@@ -139,6 +204,16 @@ public:
     {
         return atomic_load( &use_count_ );
     }
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    bool unshared() const // nothrow
+    {
+        return atomic_load( &use_count_ ) >= sp_unshared_count_threshold;
+    }
+
+#endif
+
 };
 
 } // namespace detail

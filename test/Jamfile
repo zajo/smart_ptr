@@ -20,6 +20,10 @@ project
 run quick.cpp ;
 
 # full test suite
+
+run unshared_ptr_basic_test.cpp ;
+run unshared_ptr_test.cpp ;
+
 run smart_ptr_test.cpp ;
 run shared_ptr_basic_test.cpp ;
 run shared_ptr_test.cpp ;

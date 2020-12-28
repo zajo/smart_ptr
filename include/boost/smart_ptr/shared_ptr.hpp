@@ -16,6 +16,7 @@
 
 #include <boost/smart_ptr/detail/shared_count.hpp>
 #include <boost/smart_ptr/detail/sp_convertible.hpp>
+#include <boost/smart_ptr/detail/sp_access.hpp>
 #include <boost/smart_ptr/detail/sp_nullptr_t.hpp>
 #include <boost/smart_ptr/detail/sp_disable_deprecated.hpp>
 #include <boost/smart_ptr/detail/sp_noexcept.hpp>
@@ -52,6 +53,7 @@ namespace boost
 {
 
 template<class T> class shared_ptr;
+template<class T> class unshared_ptr;
 template<class T> class weak_ptr;
 template<class T> class enable_shared_from_this;
 class enable_shared_from_raw;
@@ -65,146 +67,6 @@ namespace movelib
 
 namespace detail
 {
-
-// sp_element, element_type
-
-template< class T > struct sp_element
-{
-    typedef T type;
-};
-
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-template< class T > struct sp_element< T[] >
-{
-    typedef T type;
-};
-
-#if !defined( BOOST_BORLANDC ) || !BOOST_WORKAROUND( BOOST_BORLANDC, < 0x600 )
-
-template< class T, std::size_t N > struct sp_element< T[N] >
-{
-    typedef T type;
-};
-
-#endif
-
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-// sp_dereference, return type of operator*
-
-template< class T > struct sp_dereference
-{
-    typedef T & type;
-};
-
-template<> struct sp_dereference< void >
-{
-    typedef void type;
-};
-
-#if !defined(BOOST_NO_CV_VOID_SPECIALIZATIONS)
-
-template<> struct sp_dereference< void const >
-{
-    typedef void type;
-};
-
-template<> struct sp_dereference< void volatile >
-{
-    typedef void type;
-};
-
-template<> struct sp_dereference< void const volatile >
-{
-    typedef void type;
-};
-
-#endif // !defined(BOOST_NO_CV_VOID_SPECIALIZATIONS)
-
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-template< class T > struct sp_dereference< T[] >
-{
-    typedef void type;
-};
-
-#if !defined( BOOST_BORLANDC ) || !BOOST_WORKAROUND( BOOST_BORLANDC, < 0x600 )
-
-template< class T, std::size_t N > struct sp_dereference< T[N] >
-{
-    typedef void type;
-};
-
-#endif
-
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-// sp_member_access, return type of operator->
-
-template< class T > struct sp_member_access
-{
-    typedef T * type;
-};
-
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-template< class T > struct sp_member_access< T[] >
-{
-    typedef void type;
-};
-
-#if !defined( BOOST_BORLANDC ) || !BOOST_WORKAROUND( BOOST_BORLANDC, < 0x600 )
-
-template< class T, std::size_t N > struct sp_member_access< T[N] >
-{
-    typedef void type;
-};
-
-#endif
-
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-// sp_array_access, return type of operator[]
-
-template< class T > struct sp_array_access
-{
-    typedef void type;
-};
-
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-template< class T > struct sp_array_access< T[] >
-{
-    typedef T & type;
-};
-
-#if !defined( BOOST_BORLANDC ) || !BOOST_WORKAROUND( BOOST_BORLANDC, < 0x600 )
-
-template< class T, std::size_t N > struct sp_array_access< T[N] >
-{
-    typedef T & type;
-};
-
-#endif
-
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-// sp_extent, for operator[] index check
-
-template< class T > struct sp_extent
-{
-    enum _vt { value = 0 };
-};
-
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-template< class T, std::size_t N > struct sp_extent< T[N] >
-{
-    enum _vt { value = N };
-};
-
-#endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
 // enable_shared_from_this support
 
@@ -250,27 +112,9 @@ template< class T, class R > struct sp_enable_if_auto_ptr
 template< class T, class R > struct sp_enable_if_auto_ptr< std::auto_ptr< T >, R >
 {
     typedef R type;
-}; 
+};
 
 #endif
-
-// sp_assert_convertible
-
-template< class Y, class T > inline void sp_assert_convertible() BOOST_SP_NOEXCEPT
-{
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
-
-    // static_assert( sp_convertible< Y, T >::value );
-    typedef char tmp[ sp_convertible< Y, T >::value? 1: -1 ];
-    (void)sizeof( tmp );
-
-#else
-
-    T* p = static_cast< Y* >( 0 );
-    (void)p;
-
-#endif
-}
 
 // pointer constructor helper
 
@@ -316,10 +160,6 @@ template< class T, std::size_t N, class Y > inline void sp_deleter_construct( bo
 }
 
 #endif // !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
-
-struct sp_internal_constructor_tag
-{
-};
 
 } // namespace detail
 
@@ -437,6 +277,29 @@ public:
             px = r.px;
         }
     }
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    template<class Y>
+    explicit shared_ptr( unshared_ptr<Y> const & r ): pn( r.pn ) // may throw
+    {
+        boost::detail::sp_assert_convertible< Y, T >();
+
+        // it is now safe to copy r.px, as pn(r.pn) did not throw
+        px = r.px;
+    }
+
+    template<class Y>
+    shared_ptr( unshared_ptr<Y> const & r, boost::detail::sp_nothrow_tag )
+    BOOST_SP_NOEXCEPT : px( 0 ), pn( r.pn, boost::detail::sp_nothrow_tag() )
+    {
+        if( !pn.empty() )
+        {
+            px = r.px;
+        }
+    }
+
+#endif
 
     template<class Y>
 #if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
@@ -720,18 +583,27 @@ public:
     typename boost::detail::sp_dereference< T >::type operator* () const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+        BOOST_ASSERT( !pn.unshared() );
+#endif
         return *px;
     }
-    
+
     typename boost::detail::sp_member_access< T >::type operator-> () const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+        BOOST_ASSERT( !pn.unshared() );
+#endif
         return px;
     }
-    
+
     typename boost::detail::sp_array_access< T >::type operator[] ( std::ptrdiff_t i ) const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+        BOOST_ASSERT( !pn.unshared() );
+#endif
         BOOST_ASSERT( i >= 0 && ( i < boost::detail::sp_extent< T >::value || boost::detail::sp_extent< T >::value == 0 ) );
 
         return static_cast< typename boost::detail::sp_array_access< T >::type >( px[ i ] );
@@ -753,6 +625,11 @@ public:
     long use_count() const BOOST_SP_NOEXCEPT
     {
         return pn.use_count();
+    }
+
+    bool unshared() const BOOST_SP_NOEXCEPT
+    {
+        return pn.unshared();
     }
 
     void swap( shared_ptr & other ) BOOST_SP_NOEXCEPT
@@ -819,6 +696,7 @@ public:
 private:
 
     template<class Y> friend class shared_ptr;
+    template<class Y> friend class unshared_ptr;
     template<class Y> friend class weak_ptr;
 
 

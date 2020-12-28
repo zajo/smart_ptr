@@ -138,6 +138,16 @@ public:
         boost::detail::sp_assert_convertible< Y, T >();
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    template<class Y>
+    weak_ptr( unshared_ptr<Y> const & r ) BOOST_SP_NOEXCEPT : px( r.px ), pn( r.pn )
+    {
+        boost::detail::sp_assert_convertible< Y, T >();
+    }
+
+#endif
+
     // aliasing
     template<class Y> weak_ptr(shared_ptr<Y> const & r, element_type * p) BOOST_SP_NOEXCEPT: px( p ), pn( r.pn )
     {
@@ -207,6 +217,11 @@ public:
         return pn.use_count() == 0;
     }
 
+    bool unshared() const BOOST_SP_NOEXCEPT
+    {
+        return pn.unshared();
+    }
+
     bool _empty() const BOOST_SP_NOEXCEPT // extension, not in std::weak_ptr
     {
         return pn.empty();
@@ -262,6 +277,7 @@ private:
 
     template<class Y> friend class weak_ptr;
     template<class Y> friend class shared_ptr;
+    template<class Y> friend class unshared_ptr;
 
 #endif
 

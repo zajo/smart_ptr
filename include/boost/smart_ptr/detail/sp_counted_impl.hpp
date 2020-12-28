@@ -81,6 +81,17 @@ public:
 #endif
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    sp_counted_impl_p( X * px, sp_unshared_count_tag ): sp_counted_base(sp_unshared_count_tag()), px_( px )
+    {
+#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+        boost::sp_scalar_constructor_hook( px, sizeof(X), this );
+#endif
+    }
+
+#endif
+
     void dispose() BOOST_SP_NOEXCEPT BOOST_OVERRIDE
     {
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
@@ -164,6 +175,18 @@ public:
     {
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    sp_counted_impl_pd( P p, D & d, sp_unshared_count_tag ): sp_counted_base(sp_unshared_count_tag()), ptr( p ), del( d )
+    {
+    }
+
+    sp_counted_impl_pd( P p, sp_unshared_count_tag ): sp_counted_base(sp_unshared_count_tag()), ptr( p ), del()
+    {
+    }
+
+#endif
+
     void dispose() BOOST_SP_NOEXCEPT BOOST_OVERRIDE
     {
         del( ptr );
@@ -237,6 +260,18 @@ public:
     sp_counted_impl_pda( P p, A a ): p_( p ), d_( a ), a_( a )
     {
     }
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    sp_counted_impl_pda( P p, D & d, A a, sp_unshared_count_tag ): sp_counted_base(sp_unshared_count_tag()), p_( p ), d_( d ), a_( a )
+    {
+    }
+
+    sp_counted_impl_pda( P p, A a, sp_unshared_count_tag ): sp_counted_base(sp_unshared_count_tag()), p_( p ), d_( a ), a_( a )
+    {
+    }
+
+#endif
 
     void dispose() BOOST_SP_NOEXCEPT BOOST_OVERRIDE
     {

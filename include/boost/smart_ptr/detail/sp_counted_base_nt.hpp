@@ -52,6 +52,14 @@ public:
     {
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    explicit sp_counted_base( sp_unshared_count_tag ) BOOST_SP_NOEXCEPT: use_count_( sp_unshared_count_threshold ), weak_count_( 1 )
+    {
+    }
+
+#endif
+
     virtual ~sp_counted_base() /*BOOST_SP_NOEXCEPT*/
     {
     }
@@ -93,6 +101,32 @@ public:
         }
     }
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    unshared_add_ref_status unshared_add_ref()
+    {
+        if( use_count_ == 0 )
+            return unshared_add_ref_status::object_expired;
+        else if( use_count_ >= sp_unshared_count_threshold )
+            return unshared_add_ref_status::unshared_access_already_acquired;
+        else
+        {
+            use_count_ += sp_unshared_count_threshold;
+            return unshared_add_ref_status::ok;
+        }
+    }
+
+    void unshared_release() // nothrow
+    {
+        if( (use_count_ -= sp_unshared_count_threshold) == 0 )
+        {
+            dispose();
+            weak_release();
+        }
+    }
+
+#endif
+
     void weak_add_ref() BOOST_SP_NOEXCEPT
     {
         ++weak_count_;
@@ -110,6 +144,16 @@ public:
     {
         return use_count_;
     }
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+    bool unshared() const // nothrow
+    {
+        return use_count_ >= sp_unshared_count_threshold;
+    }
+
+#endif
+
 };
 
 } // namespace detail
