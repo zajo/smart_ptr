@@ -52,23 +52,13 @@ namespace boost
 {
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-class unshared_ptr_already_acquired: public std::exception
+class shared_ptr_not_unique: public std::exception
 {
 public:
 
     char const * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
     {
-        return "unshared_ptr_already_acquired";
-    }
-};
-
-class bad_unshared_ptr: public std::exception
-{
-public:
-
-    char const * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
-    {
-        return "bad_unshared_ptr";
+        return "shared_ptr_not_unique";
     }
 };
 
@@ -488,8 +478,7 @@ public:
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    explicit shared_count(unshared_count const & r); // throws bad_unshared_ptr when r.use_count() == 0
-    shared_count( unshared_count const & r, sp_nothrow_tag ) BOOST_SP_NOEXCEPT; // constructs an empty *this when r.use_count() == 0
+    explicit shared_count(unshared_count && r) BOOST_SP_NOEXCEPT; // constructs an empty *this when r.use_count() == 0
 
 #endif
 
@@ -516,35 +505,12 @@ public:
 
     long use_count() const BOOST_SP_NOEXCEPT
     {
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-        if( pi_ == 0 ) return 0;
-        boost::uint_least32_t c = pi_->use_count();
-        return c >= sp_unshared_count_threshold ? c - sp_unshared_count_threshold + 1 : c;
-
-#else
-
         return pi_ != 0? pi_->use_count(): 0;
-
-#endif
     }
 
     bool unique() const BOOST_SP_NOEXCEPT
     {
         return use_count() == 1;
-    }
-
-    bool unshared() const BOOST_SP_NOEXCEPT
-    {
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-        return pi_ != 0? pi_->unshared() : false;
-
-#else
-
-        return false;
-
-#endif
     }
 
     bool empty() const BOOST_SP_NOEXCEPT
@@ -599,7 +565,6 @@ private:
 #endif
 
     friend class shared_count;
-    friend class unshared_count;
 
 public:
 
@@ -617,12 +582,6 @@ public:
     {
         if(pi_ != 0) pi_->weak_add_ref();
     }
-
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-    weak_count( unshared_count && r ) BOOST_SP_NOEXCEPT;
-
-#endif
 
     weak_count(weak_count const & r) BOOST_SP_NOEXCEPT: pi_(r.pi_)
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
@@ -691,26 +650,7 @@ public:
 
     long use_count() const BOOST_SP_NOEXCEPT
     {
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-        if( pi_ == 0 ) return 0;
-        boost::uint_least32_t c = pi_->use_count();
-        return c >= sp_unshared_count_threshold ? c - sp_unshared_count_threshold + 1 : c;
-
-#else
-
         return pi_ != 0? pi_->use_count(): 0;
-
-#endif
-    }
-
-    bool unshared() const BOOST_SP_NOEXCEPT
-    {
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-        return pi_ != 0? pi_->unshared() : false;
-#else
-        return false;
-#endif
     }
 
     bool empty() const BOOST_SP_NOEXCEPT
@@ -744,7 +684,7 @@ public:
     }
 };
 
-inline shared_count::shared_count( weak_count const & r ): pi_( r.pi_ )
+inline shared_count::shared_count(weak_count const & r): pi_( r.pi_ )
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
@@ -1102,7 +1042,7 @@ public:
 
     ~unshared_count() /*BOOST_SP_NOEXCEPT*/
     {
-        if(pi_ != 0) pi_->unshared_release();
+        if( pi_ != 0 ) pi_->unshared_release();
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         id_ = 0;
 #endif
@@ -1116,77 +1056,39 @@ public:
         r.pi_ = 0;
     }
 
-    unshared_count( shared_count const & r ): pi_( r.pi_ )
+    unshared_count(shared_count && r): pi_( r.pi_ )
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(unshared_count_id)
 #endif
     {
-        if( pi_ != 0 )
+        if( pi_ )
         {
-            unshared_add_ref_status status = pi_->unshared_add_ref();
-            BOOST_ASSERT(status != unshared_add_ref_status::object_expired);
-
-            if( status == unshared_add_ref_status::unshared_access_already_acquired )
+            if( pi_->unshared_acquire() )
             {
-                boost::throw_exception( boost::unshared_ptr_already_acquired() );
+                r.pi_ = 0;
+            }
+            else
+            {
+                boost::throw_exception( boost::shared_ptr_not_unique() );
             }
         }
     }
 
-    unshared_count( shared_count const & r, sp_nothrow_tag ) BOOST_SP_NOEXCEPT: pi_( r.pi_ )
+    unshared_count( shared_count && r, sp_nothrow_tag ) BOOST_SP_NOEXCEPT: pi_( r.pi_ )
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(unshared_count_id)
 #endif
     {
-        if( pi_ != 0 )
+        if( pi_ )
         {
-            unshared_add_ref_status status = pi_->unshared_add_ref();
-            BOOST_ASSERT(status != unshared_add_ref_status::object_expired);
-
-            if( status == unshared_add_ref_status::unshared_access_already_acquired )
+            if( pi_->unshared_acquire() )
+            {
+                r.pi_ = 0;
+            }
+            else
             {
                 pi_ = 0;
             }
-        }
-    }
-
-    unshared_count( weak_count const & r ): pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
-        , id_(unshared_count_id)
-#endif
-    {
-        if( pi_ == 0 )
-        {
-            boost::throw_exception( boost::bad_weak_ptr() );
-        }
-
-        switch( pi_->unshared_add_ref() )
-        {
-            case unshared_add_ref_status::ok:
-            {
-                break;
-            }
-
-            case unshared_add_ref_status::object_expired:
-            {
-                boost::throw_exception( boost::bad_weak_ptr() );
-            }
-
-            case unshared_add_ref_status::unshared_access_already_acquired:
-            {
-                boost::throw_exception( boost::unshared_ptr_already_acquired() );
-            }
-        }
-    }
-
-    unshared_count( weak_count const & r, sp_nothrow_tag ) BOOST_SP_NOEXCEPT: pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
-        , id_(unshared_count_id)
-#endif
-    {
-        if( pi_ != 0 && pi_->unshared_add_ref() != unshared_add_ref_status::ok )
-        {
-            pi_ = 0;
         }
     }
 
@@ -1260,33 +1162,16 @@ public:
     }
 }; // class unshared_count
 
-inline shared_count::shared_count( unshared_count const & r ): pi_( r.pi_ )
+inline shared_count::shared_count(unshared_count && r) BOOST_SP_NOEXCEPT : pi_( r.pi_ )
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         , id_(shared_count_id)
 #endif
 {
-    if( pi_ == 0 )
+    if( pi_ != 0 )
     {
-        boost::throw_exception( boost::bad_unshared_ptr() );
+        pi_->add_ref_copy();
+        r.pi_ = 0;
     }
-
-    pi_->add_ref_copy();
-}
-
-inline shared_count::shared_count( unshared_count const & r, sp_nothrow_tag ) BOOST_SP_NOEXCEPT: pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
-        , id_(shared_count_id)
-#endif
-{
-    if(pi_ != 0) pi_->add_ref_copy();
-}
-
-inline weak_count::weak_count( unshared_count && r ) BOOST_SP_NOEXCEPT : pi_( r.pi_ )
-#if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
-        , id_(shared_count_id)
-#endif
-{
-    if(pi_ != 0) pi_->weak_add_ref();
 }
 
 #endif // if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )

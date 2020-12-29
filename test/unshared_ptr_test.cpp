@@ -77,7 +77,6 @@ void default_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 0);
     }
 
     {
@@ -85,7 +84,6 @@ void default_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 0);
     }
 
     {
@@ -93,7 +91,6 @@ void default_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 0);
     }
 }
 
@@ -155,8 +152,6 @@ template<class T> void pc0_test(T * p)
     BOOST_TEST(pt? false: true);
     BOOST_TEST(!pt);
     BOOST_TEST(pt.get() == 0);
-    BOOST_TEST(pt.use_count() == 1);
-    BOOST_TEST(pt.unique());
 }
 
 void pointer_constructor()
@@ -176,8 +171,6 @@ void pointer_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     {
@@ -185,8 +178,6 @@ void pointer_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     {
@@ -194,8 +185,6 @@ void pointer_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -203,8 +192,6 @@ void pointer_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     pc0_test(static_cast<X*>(0));
@@ -217,8 +204,6 @@ void pointer_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
     }
 
     {
@@ -226,8 +211,6 @@ void pointer_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
     }
 
     {
@@ -235,8 +218,6 @@ void pointer_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
     }
 
     {
@@ -244,8 +225,6 @@ void pointer_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -253,8 +232,6 @@ void pointer_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -263,8 +240,6 @@ void pointer_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == p);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(*pi == 7);
     }
 
@@ -274,8 +249,6 @@ void pointer_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == p);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(*pi == 7);
     }
 
@@ -285,8 +258,6 @@ void pointer_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == p);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -295,8 +266,6 @@ void pointer_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == p);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     BOOST_TEST(X::instances == 0);
@@ -307,8 +276,6 @@ void pointer_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
     }
 
@@ -320,8 +287,6 @@ void pointer_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
     }
 
@@ -333,8 +298,6 @@ void pointer_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == p);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
     }
 
@@ -346,8 +309,6 @@ void pointer_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == p);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
     }
 
@@ -360,8 +321,6 @@ void pointer_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
     }
@@ -375,8 +334,6 @@ void pointer_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
     }
@@ -417,8 +374,6 @@ void deleter_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     {
@@ -426,8 +381,6 @@ void deleter_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -435,8 +388,6 @@ void deleter_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -444,8 +395,6 @@ void deleter_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
     }
 
     {
@@ -453,8 +402,6 @@ void deleter_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     {
@@ -462,8 +409,6 @@ void deleter_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     BOOST_TEST(m == 0);
@@ -473,8 +418,6 @@ void deleter_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == &m);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     BOOST_TEST(m == 1);
@@ -484,8 +427,6 @@ void deleter_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == &m);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     BOOST_TEST(m == 2);
@@ -495,8 +436,6 @@ void deleter_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == &m);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     BOOST_TEST(m == 3);
@@ -506,93 +445,9 @@ void deleter_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == &m);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
     }
 
     BOOST_TEST(m == 4);
-}
-
-void weak_ptr_constructor()
-{
-    {
-        boost::weak_ptr<Y> wp;
-        BOOST_TEST(wp.use_count() == 0);
-
-        try
-        {
-            boost::unshared_ptr<Y> p2(wp);
-            BOOST_ERROR("unshared_ptr<Y> p2(wp) failed to throw");
-        }
-        catch(boost::bad_weak_ptr const&)
-        {
-        }
-    }
-
-    {
-        boost::shared_ptr<Y> p;
-        boost::weak_ptr<Y> wp(p);
-
-        if(wp.use_count() != 0) // 0 allowed but not required
-        {
-            boost::unshared_ptr<Y> p2(wp);
-            BOOST_TEST(p2.use_count() == wp.use_count());
-            BOOST_TEST(p2.get() == 0);
-        }
-    }
-
-    {
-        boost::shared_ptr<Y> p(new Y);
-        boost::weak_ptr<Y> wp(p);
-
-        {
-            boost::unshared_ptr<Y> p2(wp);
-            BOOST_TEST(p2? true: false);
-            BOOST_TEST(!!p2);
-            BOOST_TEST(p2.get() == p.get());
-            BOOST_TEST(p2.use_count() == 2);
-            BOOST_TEST(!p2.unique());
-
-            try
-            {
-                boost::unshared_ptr<X> p3(wp);
-                BOOST_ERROR("boost::unshared_ptr<X> p3(wp) failed to throw");
-            }
-            catch(boost::unshared_ptr_already_acquired const &)
-            {
-            }
-
-            try
-            {
-                boost::unshared_ptr<X> p3(wp);
-                BOOST_ERROR("boost::unshared_ptr<X> p3(wp) failed to throw");
-            }
-            catch(boost::unshared_ptr_already_acquired const &)
-            {
-            }
-        }
-
-        p.reset();
-        BOOST_TEST(wp.use_count() == 0);
-
-        try
-        {
-            boost::unshared_ptr<Y> p2(wp);
-            BOOST_ERROR("unshared_ptr<Y> p2(wp) failed to throw");
-        }
-        catch(boost::bad_weak_ptr const&)
-        {
-        }
-
-        try
-        {
-            boost::unshared_ptr<X> p3(wp);
-            BOOST_ERROR("unshared_ptr<X> p3(wp) failed to throw");
-        }
-        catch(boost::bad_weak_ptr const&)
-        {
-        }
-    }
 }
 
 #if defined(BOOST_DINKUMWARE_STDLIB) && (BOOST_DINKUMWARE_STDLIB < 306)
@@ -609,8 +464,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -620,8 +473,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -631,8 +482,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -642,8 +491,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -653,8 +500,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -664,8 +509,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -675,8 +518,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -686,8 +527,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -697,8 +536,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -708,8 +545,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(p.get() == 0);
     }
 
@@ -720,8 +555,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == q);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(*pi == 7);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -736,8 +569,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == q);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
         BOOST_TEST(*pi == 7);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -752,8 +583,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == q);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
 #if !defined(BOOST_OLD_AUTO_PTR)
         BOOST_TEST(p.get() == 0);
@@ -767,8 +596,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == q);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
 #if !defined(BOOST_OLD_AUTO_PTR)
         BOOST_TEST(p.get() == 0);
@@ -784,8 +611,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == q);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -802,8 +627,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == q);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -820,8 +643,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == q);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -838,8 +659,6 @@ void auto_ptr_constructor()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == q);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
@@ -857,8 +676,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == q);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
 
@@ -877,8 +694,6 @@ void auto_ptr_constructor()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == q);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
 
@@ -898,7 +713,6 @@ void test()
     default_constructor();
     pointer_constructor();
     deleter_constructor();
-    weak_ptr_constructor();
     auto_ptr_constructor();
 }
 
@@ -971,14 +785,12 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
 
         int * p = new int;
         std::auto_ptr<int> p3(p);
 
         p1 = p3;
         BOOST_TEST(p1.get() == p);
-        BOOST_TEST(p1.use_count() == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
         BOOST_TEST(p3.get() == 0);
@@ -988,7 +800,6 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
     }
 
     {
@@ -1000,14 +811,12 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
 
         int * p = new int;
         std::auto_ptr<int> p3(p);
 
         p1 = p3;
         BOOST_TEST(p1.get() == p);
-        BOOST_TEST(p1.use_count() == 1);
 
 #if !defined(BOOST_OLD_AUTO_PTR)
         BOOST_TEST(p3.get() == 0);
@@ -1017,7 +826,6 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
     }
 
 
@@ -1030,7 +838,6 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
 
@@ -1042,7 +849,6 @@ void auto_ptr_assignment()
 
         p1 = p3;
         BOOST_TEST(p1.get() == p);
-        BOOST_TEST(p1.use_count() == 1);
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
 
@@ -1054,7 +860,6 @@ void auto_ptr_assignment()
         BOOST_TEST(p1? false: true);
         BOOST_TEST(!p1);
         BOOST_TEST(p1.get() == 0);
-        BOOST_TEST(p1.use_count() == 1);
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
     }
@@ -1110,7 +915,6 @@ void plain_reset()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 0);
     }
 
     {
@@ -1119,7 +923,6 @@ void plain_reset()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 0);
     }
 
     {
@@ -1128,7 +931,6 @@ void plain_reset()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 0);
     }
 
     {
@@ -1137,7 +939,6 @@ void plain_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 0);
     }
 
     {
@@ -1146,7 +947,6 @@ void plain_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 0);
     }
 
     {
@@ -1155,7 +955,6 @@ void plain_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 0);
     }
 
     {
@@ -1166,7 +965,6 @@ void plain_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 0);
         BOOST_TEST(X::instances == 0);
     }
 
@@ -1176,7 +974,6 @@ void plain_reset()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 0);
     }
 
     {
@@ -1187,7 +984,6 @@ void plain_reset()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 0);
         BOOST_TEST(X::instances == 0);
     }
 }
@@ -1228,23 +1024,17 @@ void pointer_reset()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
 
         int * p = new int;
         pi.reset(p);
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == p);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
 
         pi.reset(static_cast<int*>(0));
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
     }
 
     {
@@ -1254,8 +1044,6 @@ void pointer_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 0);
 
         X * p = new X;
@@ -1263,16 +1051,12 @@ void pointer_reset()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
 
         px.reset(static_cast<X*>(0));
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
 
@@ -1281,8 +1065,6 @@ void pointer_reset()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == q);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
 
@@ -1290,8 +1072,6 @@ void pointer_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
     }
@@ -1303,8 +1083,6 @@ void pointer_reset()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 0);
 
         X * p = new X;
@@ -1312,16 +1090,12 @@ void pointer_reset()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == p);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
 
         pv.reset(static_cast<X*>(0));
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
 
@@ -1330,8 +1104,6 @@ void pointer_reset()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == q);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 1);
         BOOST_TEST(Y::instances == 1);
 
@@ -1339,8 +1111,6 @@ void pointer_reset()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
         BOOST_TEST(X::instances == 0);
         BOOST_TEST(Y::instances == 0);
     }
@@ -1362,8 +1132,6 @@ void deleter_reset()
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
 
         deleted = &pi;
 
@@ -1373,16 +1141,12 @@ void deleter_reset()
         BOOST_TEST(pi? true: false);
         BOOST_TEST(!!pi);
         BOOST_TEST(pi.get() == &m);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
 
         pi.reset(static_cast<int*>(0), deleter2);
         BOOST_TEST(deleted == &m);
         BOOST_TEST(pi? false: true);
         BOOST_TEST(!pi);
         BOOST_TEST(pi.get() == 0);
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(pi.unique());
 
         pi.reset();
         BOOST_TEST(deleted == 0);
@@ -1395,8 +1159,6 @@ void deleter_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         deleted = &px;
 
@@ -1406,16 +1168,12 @@ void deleter_reset()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == &x);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         px.reset(static_cast<X*>(0), deleter2);
         BOOST_TEST(deleted == &x);
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         Y y;
         px.reset(&y, deleter2);
@@ -1423,16 +1181,12 @@ void deleter_reset()
         BOOST_TEST(px? true: false);
         BOOST_TEST(!!px);
         BOOST_TEST(px.get() == &y);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         px.reset(static_cast<Y*>(0), deleter2);
         BOOST_TEST(deleted == &y);
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         px.reset();
         BOOST_TEST(deleted == 0);
@@ -1445,8 +1199,6 @@ void deleter_reset()
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
         deleted = &pv;
 
@@ -1456,16 +1208,12 @@ void deleter_reset()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == &x);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
         pv.reset(static_cast<X*>(0), deleter2);
         BOOST_TEST(deleted == &x);
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
         Y y;
         pv.reset(&y, deleter2);
@@ -1473,16 +1221,12 @@ void deleter_reset()
         BOOST_TEST(pv? true: false);
         BOOST_TEST(!!pv);
         BOOST_TEST(pv.get() == &y);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
         pv.reset(static_cast<Y*>(0), deleter2);
         BOOST_TEST(deleted == &y);
         BOOST_TEST(pv? false: true);
         BOOST_TEST(!pv);
         BOOST_TEST(pv.get() == 0);
-        BOOST_TEST(pv.use_count() == 1);
-        BOOST_TEST(pv.unique());
 
         pv.reset();
         BOOST_TEST(deleted == 0);
@@ -1495,8 +1239,6 @@ void deleter_reset()
         BOOST_TEST(px? false: true);
         BOOST_TEST(!px);
         BOOST_TEST(px.get() == 0);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
 
         deleted = &px;
         px.reset(p0, deleter2);
@@ -1596,54 +1338,6 @@ void test()
 
 } // namespace n_access
 
-namespace n_use_count
-{
-
-struct X
-{
-};
-
-void test()
-{
-    {
-        boost::unshared_ptr<X> px(static_cast<X*>(0));
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
-
-        boost::unshared_ptr<X> px2(std::move(px));
-        BOOST_TEST(px2.use_count() == 1);
-        BOOST_TEST(px2.unique());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(!px.unique());
-    }
-
-    {
-        boost::unshared_ptr<X> px(new X);
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
-
-        boost::unshared_ptr<X> px2(std::move(px));
-        BOOST_TEST(px2.use_count() == 1);
-        BOOST_TEST(px2.unique());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(!px.unique());
-    }
-
-    {
-        boost::unshared_ptr<X> px(new X, boost::checked_deleter<X>());
-        BOOST_TEST(px.use_count() == 1);
-        BOOST_TEST(px.unique());
-
-        boost::unshared_ptr<X> px2(std::move(px));
-        BOOST_TEST(px2.use_count() == 1);
-        BOOST_TEST(px2.unique());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(!px.unique());
-    }
-}
-
-} // namespace n_use_count
-
 namespace n_swap
 {
 
@@ -1677,7 +1371,6 @@ void test()
         px.swap(px2);
 
         BOOST_TEST(px.get() == p);
-        BOOST_TEST(px.use_count() == 1);
         BOOST_TEST(px2.get() == 0);
 
         using std::swap;
@@ -1685,7 +1378,6 @@ void test()
 
         BOOST_TEST(px.get() == 0);
         BOOST_TEST(px2.get() == p);
-        BOOST_TEST(px2.use_count() == 1);
     }
 
     {
@@ -1697,17 +1389,13 @@ void test()
         px.swap(px2);
 
         BOOST_TEST(px.get() == p2);
-        BOOST_TEST(px.use_count() == 1);
         BOOST_TEST(px2.get() == p1);
-        BOOST_TEST(px2.use_count() == 1);
 
         using std::swap;
         swap(px, px2);
 
         BOOST_TEST(px.get() == p1);
-        BOOST_TEST(px.use_count() == 1);
         BOOST_TEST(px2.get() == p2);
-        BOOST_TEST(px2.use_count() == 1);
     }
 }
 
@@ -1848,9 +1536,6 @@ void test()
 
         boost::unshared_ptr<int> pi2 = boost::static_pointer_cast<int>(std::move(pv));
         BOOST_TEST(rpi == pi2.get());
-        BOOST_TEST(pi.use_count() == 0);
-        BOOST_TEST(pv.use_count() == 0);
-        BOOST_TEST(pi2.use_count() == 1);
     }
 
     {
@@ -1860,9 +1545,6 @@ void test()
 
         boost::unshared_ptr<X> px2 = boost::static_pointer_cast<X>(std::move(pv));
         BOOST_TEST(rpx == px2.get());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(pv.use_count() == 0);
-        BOOST_TEST(px2.use_count() == 1);
     }
 
     {
@@ -1871,14 +1553,9 @@ void test()
 
         boost::unshared_ptr<Y> py = boost::static_pointer_cast<Y>(std::move(px));
         BOOST_TEST(rpy == py.get());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(py.use_count() == 1);
 
         boost::unshared_ptr<X> px2(std::move(py));
         BOOST_TEST(rpy == px2.get());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(py.use_count() == 0);
-        BOOST_TEST(px2.use_count() == 1);
     }
 }
 
@@ -1918,8 +1595,6 @@ void test()
 
         boost::unshared_ptr<void> px2 = boost::const_pointer_cast<void>(std::move(px));
         BOOST_TEST(rpi == px2.get());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(px2.use_count() == 1);
     }
 
     {
@@ -1928,8 +1603,6 @@ void test()
 
         boost::unshared_ptr<int> px2 = boost::const_pointer_cast<int>(std::move(px));
         BOOST_TEST(rpi == px2.get());
-        BOOST_TEST(px.use_count() == 0);
-        BOOST_TEST(px2.use_count() == 1);
     }
 }
 
@@ -1985,8 +1658,6 @@ void test()
 
         boost::unshared_ptr<W> pw = boost::dynamic_pointer_cast<W>(std::move(pv));
         BOOST_TEST(pw.get() == rpv);
-        BOOST_TEST(pv.use_count() == 0);
-        BOOST_TEST(pw.use_count() == 1);
     }
 }
 
@@ -2040,13 +1711,6 @@ void test()
         for(std::vector< boost::unshared_ptr<X> >::iterator i = vx.begin(); i != vx.end(); ++i)
         {
             ++m[std::move(*i)];
-        }
-    }
-
-    {
-        for(std::map< boost::unshared_ptr<void>, long >::iterator i = m.begin(); i != m.end(); ++i)
-        {
-            BOOST_TEST(i->first.use_count() == 1);
         }
     }
 }
@@ -2476,7 +2140,6 @@ int main()
     n_assignment::test();
     n_reset::test();
     n_access::test();
-    n_use_count::test();
     n_swap::test();
     n_comparison::test();
     n_static_cast::test();

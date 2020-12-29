@@ -10,6 +10,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+
+#include <boost/unshared_ptr.hpp>
+
+#endif
+
 template class boost::shared_ptr< int >;
 
 struct X

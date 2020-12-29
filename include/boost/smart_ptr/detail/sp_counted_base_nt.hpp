@@ -103,26 +103,23 @@ public:
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    unshared_add_ref_status unshared_add_ref()
+    bool unshared_acquire() // nothrow
     {
-        if( use_count_ == 0 )
-            return unshared_add_ref_status::object_expired;
-        else if( use_count_ >= sp_unshared_count_threshold )
-            return unshared_add_ref_status::unshared_access_already_acquired;
+        if( use_count_ == 1 )
+        {
+            use_count_ = 0;
+            return true;
+        }
         else
         {
-            use_count_ += sp_unshared_count_threshold;
-            return unshared_add_ref_status::ok;
+            return false;
         }
     }
 
     void unshared_release() // nothrow
     {
-        if( (use_count_ -= sp_unshared_count_threshold) == 0 )
-        {
-            dispose();
-            weak_release();
-        }
+        dispose();
+        weak_release();
     }
 
 #endif

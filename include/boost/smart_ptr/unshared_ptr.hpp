@@ -196,23 +196,25 @@ public:
 #endif
 
     template <class Y>
-    explicit unshared_ptr( shared_ptr<Y> const & r ) : pn( boost::detail::unshared_count( r.pn ) ) // may throw
+    explicit unshared_ptr( shared_ptr<Y> && r ) : pn( std::move(r.pn) ) // may throw
     {
         boost::detail::sp_assert_convertible< Y, T >();
 
         // it is now safe to copy r.px, as pn(r.pn) did not throw
         px = r.px;
+        r.px = 0;
     }
 
     template <class Y>
-    unshared_ptr( shared_ptr<Y> const & r, boost::detail::sp_nothrow_tag )
-    BOOST_SP_NOEXCEPT : px( 0 ), pn( r.pn, boost::detail::sp_nothrow_tag() )
+    unshared_ptr( shared_ptr<Y> && r, boost::detail::sp_nothrow_tag )
+    BOOST_SP_NOEXCEPT : px( 0 ), pn( std::move(r.pn), boost::detail::sp_nothrow_tag() )
     {
         boost::detail::sp_assert_convertible< Y, T >();
 
         if( !pn.empty() )
         {
-          px = r.px;
+            px = r.px;
+            r.px = 0;
         }
     }
 
@@ -465,16 +467,6 @@ public:
 
 // implicit conversion to "bool"
 #include <boost/smart_ptr/detail/operator_bool.hpp>
-
-    bool unique() const BOOST_SP_NOEXCEPT
-    {
-        return pn.unique();
-    }
-
-    long use_count() const BOOST_SP_NOEXCEPT
-    {
-        return pn.use_count();
-    }
 
     void swap( unshared_ptr & other ) BOOST_SP_NOEXCEPT
     {

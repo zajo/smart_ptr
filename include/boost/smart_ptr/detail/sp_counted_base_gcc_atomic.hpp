@@ -65,38 +65,26 @@ inline boost::uint_least32_t atomic_conditional_increment( boost::uint_least32_t
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-inline unshared_add_ref_status atomic_unshared_add( boost::uint_least32_t * pw )
+inline boost::uint_least32_t atomic_conditional_unshare( boost::uint_least32_t * pw )
 {
     // long r = *pw;
-    // if( r == 0 ) return unshared_add_ref_status::object_expired;
-    // if( r >= sp_unshared_count_threshold ) return unshared_add_ref_status::unshared_access_already_acquired;
-    // *pw += sp_unshared_count_threshold;
-    // return unshared_add_ref_status::ok
+    // if( r == 1 ) *pw = 0;
+    // return r;
 
     boost::uint_least32_t r = __atomic_load_n( pw, __ATOMIC_RELAXED );
 
     for( ;; )
     {
-        if( r == 0 )
+        if( r != 1 )
         {
-            return unshared_add_ref_status::object_expired;
+            return r;
         }
 
-        if( r >= sp_unshared_count_threshold )
+        if( __atomic_compare_exchange_n( pw, &r, 0, true, __ATOMIC_RELAXED, __ATOMIC_RELAXED ) )
         {
-            return unshared_add_ref_status::unshared_access_already_acquired;
-        }
-
-        if( __atomic_compare_exchange_n( pw, &r, r + sp_unshared_count_threshold, true, __ATOMIC_RELAXED, __ATOMIC_RELAXED ) )
-        {
-            return unshared_add_ref_status::ok;
+            return r;
         }
     }
-}
-
-inline boost::uint_least32_t atomic_unshared_sub( boost::uint_least32_t * pw )
-{
-    return __atomic_fetch_sub( pw, sp_unshared_count_threshold, __ATOMIC_ACQ_REL );
 }
 
 #endif
@@ -124,7 +112,7 @@ public:
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    explicit sp_counted_base( sp_unshared_count_tag ): use_count_(sp_unshared_count_threshold), weak_count_( 1 )
+    explicit sp_counted_base( sp_unshared_count_tag ): use_count_(0), weak_count_( 1 )
     {
     }
 
@@ -171,18 +159,15 @@ public:
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    unshared_add_ref_status unshared_add_ref()
+    bool unshared_acquire() // nothrow
     {
-        return atomic_unshared_add( &use_count_ );
+        return atomic_conditional_unshare( &use_count_ ) == 1;
     }
 
     void unshared_release() // nothrow
     {
-        if( atomic_unshared_sub( &use_count_ ) == sp_unshared_count_threshold )
-        {
-            dispose();
-            weak_release();
-        }
+        dispose();
+        weak_release();
     }
 
 #endif
@@ -204,15 +189,6 @@ public:
     {
         return atomic_load( &use_count_ );
     }
-
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-    bool unshared() const // nothrow
-    {
-        return atomic_load( &use_count_ ) >= sp_unshared_count_threshold;
-    }
-
-#endif
 
 };
 

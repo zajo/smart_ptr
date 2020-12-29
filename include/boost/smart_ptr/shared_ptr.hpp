@@ -278,29 +278,6 @@ public:
         }
     }
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-    template<class Y>
-    explicit shared_ptr( unshared_ptr<Y> const & r ): pn( r.pn ) // may throw
-    {
-        boost::detail::sp_assert_convertible< Y, T >();
-
-        // it is now safe to copy r.px, as pn(r.pn) did not throw
-        px = r.px;
-    }
-
-    template<class Y>
-    shared_ptr( unshared_ptr<Y> const & r, boost::detail::sp_nothrow_tag )
-    BOOST_SP_NOEXCEPT : px( 0 ), pn( r.pn, boost::detail::sp_nothrow_tag() )
-    {
-        if( !pn.empty() )
-        {
-            px = r.px;
-        }
-    }
-
-#endif
-
     template<class Y>
 #if !defined( BOOST_SP_NO_SP_CONVERTIBLE )
 
@@ -512,6 +489,14 @@ public:
         r.px = 0;
     }
 
+    template<class Y>
+    shared_ptr( unshared_ptr<Y> && r ) BOOST_SP_NOEXCEPT : px( r.px ), pn( std::move(r.pn) )
+    {
+        boost::detail::sp_assert_convertible< Y, T >();
+
+        r.px = 0;
+    }
+
     shared_ptr & operator=( shared_ptr && r ) BOOST_SP_NOEXCEPT
     {
         this_type( static_cast< shared_ptr && >( r ) ).swap( *this );
@@ -578,32 +563,28 @@ public:
         this_type( static_cast< shared_ptr<Y> && >( r ), p ).swap( *this );
     }
 
+    boost::unshared_ptr<T> unshare() BOOST_SP_NOEXCEPT
+    {
+        return boost::unshared_ptr<T>( std::move(*this), boost::detail::sp_nothrow_tag() );
+    }
+
 #endif
 
     typename boost::detail::sp_dereference< T >::type operator* () const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-        BOOST_ASSERT( !pn.unshared() );
-#endif
         return *px;
     }
 
     typename boost::detail::sp_member_access< T >::type operator-> () const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-        BOOST_ASSERT( !pn.unshared() );
-#endif
         return px;
     }
 
     typename boost::detail::sp_array_access< T >::type operator[] ( std::ptrdiff_t i ) const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-        BOOST_ASSERT( !pn.unshared() );
-#endif
         BOOST_ASSERT( i >= 0 && ( i < boost::detail::sp_extent< T >::value || boost::detail::sp_extent< T >::value == 0 ) );
 
         return static_cast< typename boost::detail::sp_array_access< T >::type >( px[ i ] );
@@ -625,11 +606,6 @@ public:
     long use_count() const BOOST_SP_NOEXCEPT
     {
         return pn.use_count();
-    }
-
-    bool unshared() const BOOST_SP_NOEXCEPT
-    {
-        return pn.unshared();
     }
 
     void swap( shared_ptr & other ) BOOST_SP_NOEXCEPT

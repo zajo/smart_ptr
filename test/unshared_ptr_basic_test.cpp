@@ -17,7 +17,7 @@ int main()
 
 
 
-namespace shared_unshare
+namespace shared_ptr_interaction
 {
     struct X
     {
@@ -44,126 +44,83 @@ namespace shared_unshare
     void constructor_test()
     {
         boost::shared_ptr<X> pi = boost::make_shared<X>();
-        BOOST_TEST(pi);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(!pi.unshared());
-        BOOST_TEST(X::instances == 1);
-        {
-            boost::unshared_ptr<X> upi1(pi);
-            BOOST_TEST(X::instances == 1);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.use_count() == 2);
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(upi1);
-            BOOST_TEST(upi1.use_count()==2);
-            BOOST_TEST(!upi1.unique());
-            try
-            {
-                boost::unshared_ptr<X> upi2(pi);
-                BOOST_ERROR("upi2 constructor failed to throw");
-            }
-            catch( boost::unshared_ptr_already_acquired const & )
-            {
-            }
-        }
-        BOOST_TEST(X::instances == 1);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(pi.use_count() == 1);
-        BOOST_TEST(!pi.unshared());
-        {
-            boost::unshared_ptr<X> upi3(pi);
-            BOOST_TEST(X::instances == 1);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.use_count() == 2);
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(upi3);
-            BOOST_TEST(upi3.use_count()==2);
-            BOOST_TEST(!upi3.unique());
-            boost::shared_ptr<X> pi2(pi);
-            BOOST_TEST(!pi2.unique());
-            BOOST_TEST(pi2.unshared());
-            BOOST_TEST(upi3.use_count()==3);
-            BOOST_TEST(pi.use_count() == 3);
-            try
-            {
-                boost::unshared_ptr<X> upi4(pi2);
-                BOOST_ERROR("upi4 constructor failed to throw");
-            }
-            catch( boost::unshared_ptr_already_acquired const & )
-            {
-            }
-        }
-        BOOST_TEST(X::instances == 1);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(pi.use_count() == 1);
+        BOOST_TEST( pi );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
         {
             X * const rpi = pi.get();
-            boost::unshared_ptr<X> upi5(pi);
-            pi.reset();
-            BOOST_TEST(upi5.unique());
-            BOOST_TEST(upi5.use_count() == 1);
-            BOOST_TEST(upi5.get() == rpi);
-            boost::shared_ptr<X> pi1(upi5);
-            BOOST_TEST(!upi5.unique());
-            BOOST_TEST(upi5.use_count() == 2);
-            BOOST_TEST(upi5 == pi1);
-            BOOST_TEST(!(upi5 != pi1));
-            BOOST_TEST(!pi1.unique());
+            boost::unshared_ptr<X> upi1( std::move(pi) );
+            BOOST_TEST( X::instances == 1 );
+            BOOST_TEST( !pi );
+            BOOST_TEST( !pi.unique() );
+            BOOST_TEST( pi.use_count() == 0 );
+            BOOST_TEST( upi1 );
+            BOOST_TEST( upi1.get() == rpi );
+            boost::unshared_ptr<X> upi2( std::move(pi) );
+            BOOST_TEST( !upi2 );
+            pi = std::move( upi1 );
         }
+        BOOST_TEST( X::instances == 1 );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
         {
-            boost::unshared_ptr<X> upi6;
+            boost::shared_ptr<X> pi2(pi);
             try
             {
-                boost::shared_ptr<X> pi2(upi6);
-                BOOST_ERROR("pi2 constructor failed to throw");
+                boost::unshared_ptr<X> upi3( std::move(pi) );
+                BOOST_ERROR("upi3 constructor failed to throw");
             }
-            catch( boost::bad_unshared_ptr const & )
+            catch( boost::shared_ptr_not_unique const & )
             {
             }
         }
-        BOOST_TEST(X::instances == 0);
+        BOOST_TEST( X::instances == 1 );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
+        {
+            boost::unshared_ptr<X> upi4( std::move(pi) );
+        }
+        BOOST_TEST( X::instances == 0 );
     }
 
     void unshare_test()
     {
         boost::shared_ptr<X> pi = boost::make_shared<X>();
-        BOOST_TEST(X::instances == 1);
-        BOOST_TEST(pi);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
+        BOOST_TEST( pi );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
         {
-            boost::unshared_ptr<X> upi1 = unshare(pi);
-            BOOST_TEST(X::instances == 1);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(upi1);
-            BOOST_TEST(upi1.use_count()==2);
-            BOOST_TEST(!upi1.unique());
-            boost::unshared_ptr<X> upi2 = unshare(pi);
+            X * const rpi = pi.get();
+            boost::unshared_ptr<X> upi1 = pi.unshare();
+            BOOST_TEST( X::instances == 1 );
+            BOOST_TEST( !pi );
+            BOOST_TEST( !pi.unique() );
+            BOOST_TEST( pi.use_count() == 0 );
+            BOOST_TEST( upi1 );
+            BOOST_TEST( upi1.get() == rpi );
+            boost::unshared_ptr<X> upi2( std::move(pi) );
             BOOST_TEST(!upi2);
+            pi = std::move( upi1 );
         }
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
-        BOOST_TEST(X::instances == 1);
+        BOOST_TEST( X::instances == 1 );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
         {
-            boost::unshared_ptr<X> upi3 = unshare(pi);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(upi3);
-            BOOST_TEST(upi3.use_count()==2);
-            BOOST_TEST(!upi3.unique());
-            boost::shared_ptr<X> pi2(pi);
-            BOOST_TEST(!pi2.unique());
-            BOOST_TEST(pi2.unshared());
-            BOOST_TEST(upi3.use_count()==3);
-            upi3.reset();
-            BOOST_TEST(!pi.unshared());
-            BOOST_TEST(!pi2.unshared());
+            boost::shared_ptr<X> pi2( pi );
+            boost::unshared_ptr<X> upi3 = pi.unshare();
+            BOOST_TEST(!upi3);
         }
-        BOOST_TEST(pi.unique());
+        BOOST_TEST( X::instances == 1 );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( X::instances == 1 );
         pi.reset();
-        BOOST_TEST(X::instances == 0);
+        BOOST_TEST( X::instances == 0 );
     }
 
     void test()
@@ -173,7 +130,7 @@ namespace shared_unshare
     }
 }
 
-namespace weak_unshare
+namespace weak_ptr_interaction
 {
     struct X
     {
@@ -197,91 +154,43 @@ namespace weak_unshare
 
     long X::instances = 0;
 
-    void constructor_test()
+    void lock_expired_test()
     {
         boost::shared_ptr<X> pi = boost::make_shared<X>();
-        BOOST_TEST(pi);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
+        BOOST_TEST( pi );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
         boost::weak_ptr<X> wpi( pi );
         BOOST_TEST(!wpi.expired());
-        BOOST_TEST(!wpi.unshared());
         {
-            boost::unshared_ptr<X> upi1(wpi);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(wpi.unshared());
-            BOOST_TEST(upi1);
-            BOOST_TEST(upi1.use_count()==2);
-            BOOST_TEST(!upi1.unique());
-            try
-            {
-                boost::unshared_ptr<X> upi2(wpi);
-                BOOST_ERROR("upi2 constructor failed to throw");
-            }
-            catch( boost::unshared_ptr_already_acquired const & )
-            {
-            }
-            try
-            {
-                boost::unshared_ptr<X> upi3(pi);
-                BOOST_ERROR("upi3 constructor failed to throw");
-            }
-            catch( boost::unshared_ptr_already_acquired const & )
-            {
-            }
+            boost::unshared_ptr<X> upi1 = pi.unshare();
+            BOOST_TEST( upi1 );
+            BOOST_TEST( !pi.unique() );
+            BOOST_TEST( pi.use_count() == 0 );
+            BOOST_TEST( wpi.use_count() == 0 );
+            BOOST_TEST( wpi.expired() );
+            BOOST_TEST( !wpi.lock() );
+            pi = std::move(upi1);
         }
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
-        pi.reset();
-        try
+        BOOST_TEST( pi );
+        BOOST_TEST( pi.unique() );
+        BOOST_TEST( pi.use_count() == 1 );
+        BOOST_TEST( !wpi.owner_before(pi) && !pi.owner_before(wpi) );
         {
-            boost::unshared_ptr<X> upi4(wpi);
-            BOOST_ERROR("upi3 constructor failed to throw");
+            boost::shared_ptr<X> pi1 = wpi.lock();
+            BOOST_TEST( !pi.unshare() );
+            BOOST_TEST( pi );
+            BOOST_TEST( pi1 );
+            BOOST_TEST( !pi.unique() );
+            BOOST_TEST( !pi1.unique() );
+            BOOST_TEST( pi.use_count() == 2 );
+            BOOST_TEST( pi1.use_count() == 2 );
         }
-        catch( boost::bad_weak_ptr const & )
-        {
-        }
-    }
-
-    void unshare_test()
-    {
-        boost::shared_ptr<X> pi = boost::make_shared<X>();
-        BOOST_TEST(pi);
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
-        boost::weak_ptr<X> wpi( pi );
-        BOOST_TEST(!wpi.expired());
-        BOOST_TEST(!wpi.unshared());
-        {
-            boost::unshared_ptr<X> upi1 = unshare(wpi);
-            BOOST_TEST(!pi.unique());
-            BOOST_TEST(pi.unshared());
-            BOOST_TEST(wpi.unshared());
-            BOOST_TEST(upi1);
-            BOOST_TEST(upi1.use_count()==2);
-            BOOST_TEST(!upi1.unique());
-            boost::unshared_ptr<X> upi2 = unshare(wpi);
-            BOOST_TEST(!upi2);
-            boost::unshared_ptr<X> upi3 = unshare(pi);
-            BOOST_TEST(!upi3);
-        }
-        BOOST_TEST(pi.unique());
-        BOOST_TEST(!pi.unshared());
-        boost::unshared_ptr<X> upi4 = unshare(pi);
-        BOOST_TEST(!upi4.unique());
-        pi.reset();
-        BOOST_TEST(upi4.unique());
-        boost::unshared_ptr<X> upi5 = unshare(wpi);
-        BOOST_TEST(!upi5);
-        boost::unshared_ptr<X> upi6 = unshare(pi);
-        BOOST_TEST(!upi6);
     }
 
     void test()
     {
-        constructor_test();
-        unshare_test();
+        lock_expired_test();
     }
 }
 
@@ -314,22 +223,19 @@ namespace standalone
         X * pi = new X;
         boost::unshared_ptr<X> upi1(pi);
         BOOST_TEST(upi1);
-        BOOST_TEST(upi1.unique());
         BOOST_TEST(upi1.get() == pi);
         boost::unshared_ptr<X> upi2 = std::move(upi1);
         BOOST_TEST(!upi1);
-        BOOST_TEST(!upi1.unique());
         BOOST_TEST(upi1.get() == 0);
         BOOST_TEST(upi2);
-        BOOST_TEST(upi2.unique());
         BOOST_TEST(upi2.get() == pi);
     }
 }
 
 int main()
 {
-    shared_unshare::test();
-    weak_unshare::test();
+    shared_ptr_interaction::test();
+    weak_ptr_interaction::test();
     standalone::test();
 
     return boost::report_errors();
