@@ -1106,16 +1106,6 @@ public:
         pi_ = tmp;
     }
 
-    long use_count() const BOOST_SP_NOEXCEPT
-    {
-        return pi_ != 0? pi_->use_count() - sp_unshared_count_threshold + 1: 0;
-    }
-
-    bool unique() const BOOST_SP_NOEXCEPT
-    {
-        return use_count() == 1;
-    }
-
     bool empty() const BOOST_SP_NOEXCEPT
     {
         return pi_ == 0;

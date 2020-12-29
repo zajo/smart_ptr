@@ -21,32 +21,6 @@
 #include <boost/smart_ptr/detail/sp_has_sync_intrinsics.hpp>
 #include <boost/config.hpp>
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-#include <boost/cstdint.hpp>
-#include <limits>
-
-namespace boost {
-namespace detail {
-
-boost::uint_least32_t const sp_unshared_count_threshold = std::numeric_limits<boost::uint_least32_t>::max() / 2;
-
-enum class unshared_add_ref_status
-{
-	ok,
-	object_expired,
-	unshared_access_already_acquired
-};
-
-struct sp_unshared_count_tag
-{
-};
-
-}
-}
-
-#endif
-
 #if defined( BOOST_SP_DISABLE_THREADS )
 # include <boost/smart_ptr/detail/sp_counted_base_nt.hpp>
 

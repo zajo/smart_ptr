@@ -94,6 +94,10 @@ inline boost::uint_least32_t atomic_load( boost::uint_least32_t const * pw )
     return __atomic_load_n( pw, __ATOMIC_ACQUIRE );
 }
 
+struct sp_unshared_count_tag
+{
+};
+
 class BOOST_SYMBOL_VISIBLE sp_counted_base
 {
 private:

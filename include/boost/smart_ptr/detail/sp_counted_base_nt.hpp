@@ -36,6 +36,10 @@ namespace boost
 namespace detail
 {
 
+struct sp_unshared_count_tag
+{
+};
+
 class BOOST_SYMBOL_VISIBLE sp_counted_base
 {
 private:
@@ -54,7 +58,7 @@ public:
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
-    explicit sp_counted_base( sp_unshared_count_tag ) BOOST_SP_NOEXCEPT: use_count_( sp_unshared_count_threshold ), weak_count_( 1 )
+    explicit sp_counted_base( sp_unshared_count_tag ) BOOST_SP_NOEXCEPT: use_count_( 0 ), weak_count_( 1 )
     {
     }
 
@@ -141,15 +145,6 @@ public:
     {
         return use_count_;
     }
-
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-    bool unshared() const // nothrow
-    {
-        return use_count_ >= sp_unshared_count_threshold;
-    }
-
-#endif
 
 };
 
